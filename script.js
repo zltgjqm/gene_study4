@@ -671,6 +671,10 @@ async function updateMember(userId, changes) {
 }
 
 function bindEvents() {
+  $("#authOpenButton").addEventListener("click", openAuthDialog);
+  $("#loginButton").addEventListener("click", login);
+  $("#signupButton").addEventListener("click", signup);
+  $("#logoutButton").addEventListener("click", logout);
   $$(".tab").forEach((tab) => tab.addEventListener("click", () => setPage(tab.dataset.page)));
   $$('[data-page-jump]').forEach((button) => button.addEventListener("click", () => setPage(button.dataset.pageJump)));
   $("#memberManageButton").addEventListener("click", () => { $("#memberDialog").showModal(); loadMembers(); });
