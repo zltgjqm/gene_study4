@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Single-cell Marker Library</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="page">
+    <header class="topbar">
+      <div>
+        <button class="brand-home" type="button" data-page-jump="home">Single-cell Annotation Helper</button>
+        <h1>Gene ↔ Cell Marker Library</h1>
+      </div>
+      <div class="top-actions">
+        <nav class="tabs" aria-label="페이지 메뉴">
+          <button class="tab active" data-page="home">Home</button>
+          <button class="tab" data-page="search">Search</button>
+          <button class="tab" data-page="library">Library</button>
+          <button class="tab" data-page="favorites">즐겨찾기</button>
+          <button class="tab" data-page="add">Add Note</button>
+          <button id="memberManageButton" class="tab owner-only hidden" type="button">Member 관리</button>
+        </nav>
+        <div id="authBox" class="auth-box">
+          <span id="authEmail" class="muted">로그인 안 됨</span>
+          <button id="authOpenButton" class="secondary">로그인</button>
+          <button id="logoutButton" class="ghost hidden">로그아웃</button>
+        </div>
+      </div>
+    </header>
+
+    <section class="search-panel compact">
+      <div class="search-row">
+        <input id="globalSearchInput" type="search" placeholder="예: EPCAM, T cell, colon cancer" autocomplete="off" />
+        <select id="globalSearchMode" aria-label="검색 기준">
+          <option value="all">전체</option>
+          <option value="gene_symbol">Gene</option>
+          <option value="cell_type">Cell</option>
+          <option value="disease">Disease</option>
+          <option value="tissue_or_organ">Tissue</option>
+        </select>
+        <button id="globalSearchButton">검색</button>
+      </div>
+      <p class="hint">승인된 member만 사용할 수 있어. 미승인 계정은 owner 승인 전까지 접근이 제한돼.</p>
+    </section>
+
+    <section id="accessNotice" class="panel hidden"></section>
+
+    <section id="homePage" class="page-section active">
+      <div class="home-grid">
+        <article class="panel">
+          <div class="section-head">
+            <h2>최근 본 항목</h2>
+            <button class="ghost" id="clearRecentButton">초기화</button>
+          </div>
+          <div id="recentViewed" class="pill-list"></div>
+        </article>
+
+        <article class="panel">
+          <div class="section-head">
+            <h2>최근 추가한 메모</h2>
+            <button class="ghost" data-page-jump="add">메모 추가</button>
+          </div>
+          <div id="recentNotes" class="note-list"></div>
+        </article>
+
+        <article class="panel wide">
+          <div class="section-head">
+            <h2>추천 탐색</h2>
+            <span class="muted">DB에서 많이 등장하는 항목</span>
+          </div>
+          <div class="suggestion-grid">
+            <div>
+              <h3>Genes</h3>
+              <div id="topGenes" class="pill-list"></div>
+            </div>
+            <div>
+              <h3>Cells</h3>
+              <div id="topCells" class="pill-list"></div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="searchPage" class="page-section">
+      <div class="section-head">
+        <h2>검색 결과</h2>
+        <span id="searchSummary" class="muted">검색어를 입력해줘.</span>
+      </div>
+      <section class="results" id="searchResults"></section>
+    </section>
+
+    <section id="libraryPage" class="page-section">
+      <div class="section-head">
+        <h2>전체 Library</h2>
+        <span id="librarySummary" class="muted"></span>
+      </div>
+      <div class="filter-row">
+        <input id="libraryGene" placeholder="Gene filter" />
+        <input id="libraryCell" placeholder="Cell filter" />
+        <input id="libraryDisease" placeholder="Disease filter" />
+        <input id="libraryTissue" placeholder="Tissue filter" />
+        <button id="libraryFilterButton">필터 적용</button>
+        <button class="secondary" id="libraryResetButton">초기화</button>
+      </div>
+      <section class="results" id="libraryResults"></section>
+      <button id="loadMoreButton" class="load-more">더 보기</button>
+    </section>
+
+    <section id="favoritesPage" class="page-section">
+      <div class="section-head">
+        <h2>내 즐겨찾기</h2>
+        <span id="favoritesSummary" class="muted"></span>
+      </div>
+      <section class="results" id="favoritesResults"></section>
+    </section>
+
+    <section id="addPage" class="page-section">
+      <article class="panel form-panel">
+        <h2>공부한 내용 추가하기</h2>
+        <p class="hint">논문을 읽고 얻은 내용은 기본 DB와 따로 저장돼서 “추가 지식”으로 구분돼.</p>
+        <div id="loginRequiredNotice" class="empty hidden">메모를 저장하려면 먼저 로그인해줘.</div>
+        <form id="noteForm" class="note-form">
+          <label>메모 타입
+            <select id="noteType" required>
+              <option value="relation">Relation note: Gene-Cell 관계</option>
+              <option value="gene">Gene note</option>
+              <option value="cell">Cell note</option>
+              <option value="disease">Disease note</option>
+            </select>
+          </label>
+          <div class="form-grid">
+            <label>Gene <input id="noteGene" placeholder="EPCAM" /></label>
+            <label>Cell <input id="noteCell" placeholder="Epithelial cell" /></label>
+            <label>Disease <input id="noteDisease" placeholder="Colon cancer" /></label>
+            <label>Tissue <input id="noteTissue" placeholder="Colon" /></label>
+          </div>
+          <div class="form-grid">
+            <label>논문 제목 / 출처 <input id="notePaper" placeholder="Paper title or source" /></label>
+            <label>PMID / DOI <input id="notePmid" placeholder="PMID:12345678" /></label>
+          </div>
+          <label>Tags <input id="noteTags" placeholder="marker, tumor, annotation" /></label>
+          <label>Memo <textarea id="noteMemo" required placeholder="논문에서 확인한 내용, 내 해석, 주의할 점 등"></textarea></label>
+          <div class="form-actions">
+            <button type="submit">메모 저장</button>
+            <button type="button" class="secondary" id="resetNoteButton">비우기</button>
+          </div>
+          <p id="noteStatus" class="status"></p>
+        </form>
+      </article>
+    </section>
+  </main>
+
+  <dialog id="authDialog" class="auth-dialog">
+    <form method="dialog" class="dialog-close-form">
+      <button class="ghost">닫기</button>
+    </form>
+    <h2>로그인 / 회원가입</h2>
+    <p class="hint">이메일과 비밀번호로 가입하면, 네가 적은 메모는 네 계정에서만 보여.</p>
+    <form id="authForm" class="note-form">
+      <label>Email <input id="authEmailInput" type="email" required placeholder="you@example.com" /></label>
+      <label>Password <input id="authPasswordInput" type="password" required minlength="6" placeholder="6자 이상" /></label>
+      <div class="form-actions">
+        <button type="button" id="loginButton">로그인</button>
+        <button type="button" class="secondary" id="signupButton">회원가입</button>
+      </div>
+      <p id="authStatus" class="status"></p>
+    </form>
+  </dialog>
+
+  <dialog id="memberDialog" class="auth-dialog member-dialog">
+    <form method="dialog" class="dialog-close-form">
+      <button class="ghost">닫기</button>
+    </form>
+    <h2>Member 관리</h2>
+    <p class="hint">owner만 볼 수 있어. 가입한 계정을 승인해야 이 홈페이지를 사용할 수 있어.</p>
+    <div id="memberStatus" class="status"></div>
+    <div id="memberList" class="member-list"></div>
+  </dialog>
+
+  <template id="markerCardTemplate">
+    <article class="card">
+      <div class="card-header">
+        <button class="star-btn" type="button" aria-label="즐겨찾기" title="즐겨찾기">★</button>
+        <button class="gene chip link-chip"></button>
+        <button class="cell chip link-chip"></button>
+        <button class="expand-toggle ghost tiny" type="button" aria-expanded="false">자세히 ▾</button>
+      </div>
+      <div class="card-body hidden">
+        <dl class="meta-grid">
+          <div><dt>Species</dt><dd class="species"></dd></div>
+          <div><dt>Disease</dt><dd class="disease"></dd></div>
+          <div><dt>Tissue / Organ</dt><dd class="tissue"></dd></div>
+          <div><dt>Strength</dt><dd class="strength"></dd></div>
+          <div><dt>Source</dt><dd class="source"></dd></div>
+          <div><dt>Evidence</dt><dd class="evidence"></dd></div>
+        </dl>
+        <div class="card-actions">
+          <button class="secondary add-relation-note">이 관계에 메모</button>
+        </div>
+        <div class="attached-notes"></div>
+      </div>
+    </article>
+  </template>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>
